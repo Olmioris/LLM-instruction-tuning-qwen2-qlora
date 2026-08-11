@@ -20,6 +20,7 @@ The project demonstrates how a small‑scale model can be adapted to multi‑dom
 
 ## Project Structure
 
+```
 LLM-instruction-tuning-qwen2-qlora/
 │
 ├── notebooks/                # Jupyter notebooks for training & evaluation
@@ -57,6 +58,7 @@ The training pipeline includes:
 Training implementation:
 - `notebooks/01_sft_training_qwen2.ipynb`
 - `src/training/`
+```
 
 ---
 
@@ -116,7 +118,9 @@ The project is fully reproducible:
 ## Requirements
 
 Install dependencies:
-```bash
+
+```
 pip install -r requirements.txt
+```
 
 Run notebooks locally or in Colab.
