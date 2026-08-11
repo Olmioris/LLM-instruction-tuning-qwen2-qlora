@@ -1,0 +1,13 @@
+model:
+  name: "Qwen/Qwen2-0.5B-Instruct"
+  adapter: "/content/drive/MyDrive/Qwen2-0.5B-SFT-MultiDomain"
+
+dataset:
+  path: "/content/drive/MyDrive/MultiDomain_Instruction_50k"
+
+eval:
+  limit: 500
+
+generation:
+  max_new_tokens: 150
+  prompt: "Explain the difference between supervised and reinforcement learning."
