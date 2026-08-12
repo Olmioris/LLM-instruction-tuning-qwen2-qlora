@@ -3,16 +3,20 @@ from lm_eval import evaluator
 
 logger = logging.getLogger("app")
 
-def run_hellaswag(model_name: str, adapter_path: str = None, limit: int = 500):
+def run_hellaswag(model_path: str, adapter_path: str = None, limit: int = 500):
     """
     Run Hellaswag evaluation for baseline or finetuned model.
+    model_path: путь к локальной модели (директория с config.json, tokenizer.json, model.safetensors)
+    adapter_path: путь к LoRA адаптеру (если есть)
+    limit: ограничение количества примеров
     """
+
     if adapter_path:
         logger.info("Running Hellaswag for finetuned model")
-        model_args = f"pretrained={model_name},peft={adapter_path},dtype=float32"
+        model_args = f"pretrained={model_path},peft={adapter_path},dtype=float32"
     else:
         logger.info("Running Hellaswag for baseline model")
-        model_args = f"pretrained={model_name},dtype=float32"
+        model_args = f"pretrained={model_path},dtype=float32"
 
     results = evaluator.simple_evaluate(
         model="hf",
