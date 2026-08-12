@@ -1,0 +1,48 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Logs
+logs/
+*.log
+
+# Model weights
+models/**/*.bin
+models/**/*.safetensors
+models/**/*.pt
+models/**/*.pth
+
+# HuggingFace cache
+~/.cache/huggingface/
+huggingface/
+cache/
+hf_cache/
+
+# Datasets cache
+~/.cache/datasets/
+datasets_cache/
+
+# Results
+results/*.json
+results/*.md
+
+# Hydra outputs
+outputs/
+multirun/
+
+# VS Code
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db

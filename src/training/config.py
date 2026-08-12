@@ -1,3 +1,4 @@
+WEAK_MODE = False
 MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"
 MAX_SEQ_LENGTH = 512
 SEED = 42

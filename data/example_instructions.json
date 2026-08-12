@@ -1,0 +1,10 @@
+[
+  {
+    "instruction": "Explain overfitting in machine learning.",
+    "response": "Overfitting happens when a model learns noise instead of general patterns."
+  },
+  {
+    "instruction": "List three advantages of LoRA.",
+    "response": "LoRA reduces memory usage, speeds up training, and allows modular fine-tuning."
+  }
+]

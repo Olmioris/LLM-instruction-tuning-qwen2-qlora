@@ -18,7 +18,7 @@ def load_raw_dataset(path: str):
 def prepare_dataset(path: str, seed: int = 42):
     """
     Загружает датасет и делает train/test split.
-    Никакого форматирования не требуется — оно уже сделано в Colab.
+    Форматирования не требуется, предварительно оно было сделано в Colab.
     """
     set_seed(seed)
     dataset = load_raw_dataset(path)

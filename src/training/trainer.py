@@ -1,52 +1,88 @@
-import torch
-from transformers import AutoModelForCausalLM, BitsAndBytesConfig
-from peft import prepare_model_for_kbit_training, LoraConfig, get_peft_model
-from trl import SFTTrainer, SFTConfig
+import logging
+from dataclasses import dataclass
+from typing import Optional
 
-from .config import MODEL_NAME, OUTPUT_DIR, LORA_CONFIG, TRAINING_CONFIG
+from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
+from trl import SFTTrainer
+from datasets import load_dataset
 
-def load_4bit_model():
-    bnb_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_use_double_quant=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float32,
-    )
+from src.training.config import (
+    MODEL_NAME,
+    OUTPUT_DIR,
+    DATA_PATH,
+    WEAK_MODE
+)
 
+logger = logging.getLogger("app")
+
+
+@dataclass
+class SFTTrainingConfig:
+    model_name: str = MODEL_NAME
+    data_path: str = DATA_PATH
+    output_dir: str = OUTPUT_DIR
+    max_seq_length: int = 1024
+    num_train_epochs: int = 1
+    per_device_train_batch_size: int = 1
+    gradient_accumulation_steps: int = 4
+    learning_rate: float = 2e-4
+    logging_steps: int = 10
+    save_steps: int = 200
+    warmup_steps: int = 50
+
+
+def run_sft_training(cfg: Optional[SFTTrainingConfig] = None):
+    if WEAK_MODE:
+        logger.warning("Weak laptop mode: skipping SFT training")
+        return
+
+    cfg = cfg or SFTTrainingConfig()
+
+    logger.info("Loading dataset...")
+    dataset = load_dataset("json", data_files=cfg.data_path)
+
+    logger.info("Loading tokenizer...")
+    tokenizer = AutoTokenizer.from_pretrained(cfg.model_name)
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.pad_token_id = tokenizer.eos_token_id
+
+    logger.info("Loading model...")
     model = AutoModelForCausalLM.from_pretrained(
-        MODEL_NAME,
-        quantization_config=bnb_config,
-        device_map="cpu",
+        cfg.model_name,
+        device_map="auto",
+        torch_dtype="auto"
     )
 
-    model.config.use_cache = False
-    return model
-
-def apply_lora(model):
-    lora_cfg = LoraConfig(
-        r=LORA_CONFIG["r"],
-        lora_alpha=LORA_CONFIG["alpha"],
-        lora_dropout=LORA_CONFIG["dropout"],
-        bias=LORA_CONFIG["bias"],
-        task_type="CAUSAL_LM",
-        target_modules=LORA_CONFIG["target_modules"],
+    logger.info("Preparing training arguments...")
+    training_args = TrainingArguments(
+        output_dir=cfg.output_dir,
+        num_train_epochs=cfg.num_train_epochs,
+        per_device_train_batch_size=cfg.per_device_train_batch_size,
+        gradient_accumulation_steps=cfg.gradient_accumulation_steps,
+        learning_rate=cfg.learning_rate,
+        logging_steps=cfg.logging_steps,
+        save_steps=cfg.save_steps,
+        warmup_steps=cfg.warmup_steps,
+        fp16=False,
+        bf16=False,
+        report_to="none"
     )
-    model = prepare_model_for_kbit_training(model)
-    return get_peft_model(model, lora_cfg)
 
-def create_trainer(model, tokenizer, dataset):
-    args = SFTConfig(output_dir=OUTPUT_DIR, **TRAINING_CONFIG)
+    logger.info("Initializing SFTTrainer...")
     trainer = SFTTrainer(
         model=model,
-        args=args,
+        tokenizer=tokenizer,
         train_dataset=dataset["train"],
-        eval_dataset=dataset["test"],
-        processing_class=tokenizer,
+        dataset_text_field="instruction",
+        max_seq_length=cfg.max_seq_length,
+        args=training_args,
     )
-    return trainer
 
-def train_model(trainer):
-    train_out = trainer.train()
-    eval_out = trainer.evaluate()
-    trainer.save_model(OUTPUT_DIR)
-    return train_out, eval_out
+    logger.info("Starting training...")
+    trainer.train()
+
+    logger.info("Saving model...")
+    trainer.save_model(cfg.output_dir)
+
+    logger.info("Training completed successfully.")

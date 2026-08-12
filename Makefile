@@ -12,6 +12,3 @@ hydra:
 
 test:
     pytest -q
-
-logs:
-    cat logs/app.log
