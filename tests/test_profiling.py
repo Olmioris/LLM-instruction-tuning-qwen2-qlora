@@ -1,6 +1,5 @@
 from src.utils.profiling import cpu_profile
 
-def test_cpu_profile():
-    with cpu_profile("test_section"):
-        x = sum(range(1000))
-    assert x == 499500
+def test_cpu_profile_runs():
+    profile = cpu_profile()
+    assert isinstance(profile, dict)
