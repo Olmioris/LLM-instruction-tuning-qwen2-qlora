@@ -6,10 +6,7 @@ LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
 
 def setup_logging(level=logging.INFO):
-    """
-    Configure application-wide logging with rotation.
-    """
-    # Создаём директорию, если её нет
+    # Создаём директорию
     os.makedirs(LOG_DIR, exist_ok=True)
 
     formatter = logging.Formatter(
@@ -28,11 +25,13 @@ def setup_logging(level=logging.INFO):
     console = logging.StreamHandler()
     console.setFormatter(formatter)
 
+    # ВАЖНО: сбрасываем старую конфигурацию
+    logging.getLogger().handlers.clear()
+
     logging.basicConfig(
         level=level,
         handlers=[handler, console]
     )
 
     logger = logging.getLogger("app")
-    logger.info("Logging initialized")
     return logger
