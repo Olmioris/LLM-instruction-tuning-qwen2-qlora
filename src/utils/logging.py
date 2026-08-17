@@ -6,7 +6,6 @@ LOG_DIR = "logs"
 LOG_FILE = os.path.join(LOG_DIR, "app.log")
 
 def setup_logging(level=logging.INFO):
-    # Создаём директорию
     os.makedirs(LOG_DIR, exist_ok=True)
 
     formatter = logging.Formatter(
@@ -14,24 +13,26 @@ def setup_logging(level=logging.INFO):
         "%Y-%m-%d %H:%M:%S"
     )
 
-    handler = RotatingFileHandler(
+    # Чистим root‑логгер безопасно
+    root = logging.getLogger()
+    for h in root.handlers[:]:
+        root.removeHandler(h)
+
+    file_handler = RotatingFileHandler(
         LOG_FILE,
         maxBytes=5_000_000,
         backupCount=5,
         encoding="utf-8"
     )
-    handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
 
-    console = logging.StreamHandler()
-    console.setFormatter(formatter)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
 
-    # ВАЖНО: сбрасываем старую конфигурацию
-    logging.getLogger().handlers.clear()
-
-    logging.basicConfig(
-        level=level,
-        handlers=[handler, console]
-    )
+    root.setLevel(level)
+    root.addHandler(file_handler)
+    root.addHandler(console_handler)
 
     logger = logging.getLogger("app")
+    logger.debug("Logging initialized")
     return logger

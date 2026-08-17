@@ -3,6 +3,7 @@ from src.utils.profiling import cpu_profile
 from src.evaluation.hellaswag_runner import run_hellaswag
 from src.training.config import MODEL_NAME, OUTPUT_DIR, WEAK_MODE
 
+
 def main():
     logger = setup_logging()
     logger.info("Starting evaluation pipeline")
@@ -19,6 +20,7 @@ def main():
 
     logger.info(f"Baseline Hellaswag acc_norm: {baseline_score:.4f}")
     logger.info(f"Finetuned Hellaswag acc_norm: {finetuned_score:.4f}")
+
 
 if __name__ == "__main__":
     main()
