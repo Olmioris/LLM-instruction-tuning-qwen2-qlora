@@ -1,6 +1,11 @@
 from src.utils.logging import setup_logging
+import os
 
 def test_logging_setup():
     logger = setup_logging()
-    assert logger is not None
-    assert hasattr(logger, "info")
+    logger.info("Test log entry")
+
+    with open("logs/app.log", "r", encoding="utf-8") as f:
+        content = f.read()
+
+    assert "Test log entry" in content
