@@ -1,21 +1,20 @@
 import logging
+import os
 from lm_eval import evaluator
 from src.training.config import WEAK_MODE
 
 logger = logging.getLogger("app")
 
+# -----------------------------
+# Жёсткое отключение CUDA
+# -----------------------------
+os.environ["CUDA_VISIBLE_DEVICES"] = ""
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 def run_hellaswag(model_path: str, adapter_path: str = None, limit: int = 500):
     """
     Run Hellaswag evaluation for baseline or finetuned model.
-
-    Parameters:
-        model_path: путь к локальной модели (директория с config.json, tokenizer.json, model.safetensors)
-        adapter_path: путь к LoRA адаптеру (если есть)
-        limit: ограничение количества примеров
-
-    Returns:
-        float: значение метрики acc_norm
     """
 
     if WEAK_MODE:
@@ -33,7 +32,7 @@ def run_hellaswag(model_path: str, adapter_path: str = None, limit: int = 500):
         model_args = f"pretrained={model_path},dtype=float32"
 
     # -----------------------------
-    # Запуск LM‑Eval
+    # Запуск LM‑Eval (CPU)
     # -----------------------------
     try:
         results = evaluator.simple_evaluate(
@@ -43,6 +42,7 @@ def run_hellaswag(model_path: str, adapter_path: str = None, limit: int = 500):
             num_fewshot=0,
             limit=limit,
             batch_size=1,
+            device="cpu",  # ← ключевой параметр
         )
     except Exception as e:
         logger.error(f"LM‑Eval Hellaswag failed: {e}")
@@ -67,9 +67,5 @@ def run_hellaswag(model_path: str, adapter_path: str = None, limit: int = 500):
 
     score = hella[acc_norm_key]
 
-    # -----------------------------
-    # Логирование результата
-    # -----------------------------
     logger.info(f"Hellaswag acc_norm: {score:.4f}")
-
     return score

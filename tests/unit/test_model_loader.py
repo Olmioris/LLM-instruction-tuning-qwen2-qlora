@@ -1,13 +1,13 @@
-# tests/test_model_loader.py
+import logging
+from src.utils.model_loader import load_tokenizer
+from src.training.config import MODEL_NAME, WEAK_MODE
 
-from src.utils.model_loader import load_local_model
-import pytest
-from pathlib import Path
+logger = logging.getLogger("app")
 
+def test_load_tokenizer_normal_mode(monkeypatch):
+    if WEAK_MODE:
+        monkeypatch.setattr("src.training.config.WEAK_MODE", False)
 
-def test_load_local_model_raises_on_missing_path(tmp_path):
-    # Берём заведомо несуществующий путь
-    fake_path = tmp_path / "no_model_here"
-
-    with pytest.raises((FileNotFoundError, ValueError, OSError)):
-        load_local_model(str(fake_path))
+    tok = load_tokenizer(MODEL_NAME)
+    assert tok is not None
+    assert tok.pad_token is not None
