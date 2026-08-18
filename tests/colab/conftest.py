@@ -1,4 +1,12 @@
+import sys
 import os
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, PROJECT_ROOT)
+
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from peft import PeftModel
+
 import pytest
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
