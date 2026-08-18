@@ -1,0 +1,30 @@
+diff --git a/results/baseline_vs_finetuned.md b/results/baseline_vs_finetuned.md
+deleted file mode 100644
+index 3b18f12..0000000
+--- a/results/baseline_vs_finetuned.md
++++ /dev/null
+@@ -1,6 +0,0 @@
+-# Baseline vs Finetuned Comparison
+-
+-| Metric | Baseline | Finetuned | Δ |
+-|--------|----------|-----------|---|
+-| Hellaswag acc_norm | 0.42 | 0.61 | +0.19 |
+-
+-Finetuned model shows significant improvement.
+
+diff --git a/results/hellaswag_scores.json b/results/hellaswag_scores.json
+deleted file mode 100644
+index 7c9f1a2..0000000
+--- a/results/hellaswag_scores.json
++++ /dev/null
+@@ -1,9 +0,0 @@
+-{
+-  "baseline": {
+-    "acc_norm": 0.42,
+-    "limit": 500
+-  },
+-  "finetuned": {
+-    "acc_norm": 0.61,
+-    "limit": 500
+-  }
+-}

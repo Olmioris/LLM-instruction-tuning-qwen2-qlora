@@ -1,0 +1,15 @@
+diff --git a/results/baseline_vs_finetuned.md b/results/baseline_vs_finetuned.md
+deleted file mode 100644
+index 3b18f12..0000000
+--- a/results/baseline_vs_finetuned.md
++++ /dev/null
+@@ -1,50 +0,0 @@
+-(старое содержимое удалено)
+
+diff --git a/results/hellaswag_scores.json b/results/hellaswag_scores.json
+deleted file mode 100644
+index 7c9f1a2..0000000
+--- a/results/hellaswag_scores.json
++++ /dev/null
+@@ -1,20 +0,0 @@
+-(старое содержимое удалено)

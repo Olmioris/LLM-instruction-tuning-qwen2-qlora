@@ -1,0 +1,23 @@
+diff --git a/.gitignore b/.gitignore
+index 1a2b3c4..5d6e7f8 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,3 +1,20 @@
++# Python cache
++__pycache__/
++*.pyc
++
++# Logs
++logs/*.log
++logs/*.txt
++
++# Hydra outputs
++outputs/
++**/.hydra/
++
++# LM-Eval temporary outputs
++*.json
++*.yaml
++
++# pytest temp dirs
++.pytest_cache/

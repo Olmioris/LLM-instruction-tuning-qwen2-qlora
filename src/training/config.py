@@ -1,32 +1,43 @@
 import os
+import logging
 
-# -----------------------------
-# Базовая директория проекта
-# -----------------------------
+logger = logging.getLogger("app")
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
-# -----------------------------
-# Пути к модели
-# -----------------------------
-# Для Colab — локальная модель, которую ты копируешь в ./models/local-qwen
-MODEL_NAME = os.path.join(BASE_DIR, "models", "local-qwen")
-OUTPUT_DIR = MODEL_NAME
+LOCAL_MODEL_DIR = "/content/drive/MyDrive/local-qwen"
+HF_MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"
 
-# -----------------------------
-# Пути к датасету
-# -----------------------------
-DATASET_PATH = os.path.join(BASE_DIR, "data", "example_instructions.json")
+def resolve_model_path():
+    if os.path.exists(LOCAL_MODEL_DIR):
+        logger.info(f"Using local model: {LOCAL_MODEL_DIR}")
+        return LOCAL_MODEL_DIR
 
-# -----------------------------
-# Режим работы
-# -----------------------------
-# WEAK_MODE=False → полноценный режим (Colab)
-# WEAK_MODE=True → режим ноутбука (CPU, без CUDA, без тяжёлых тестов)
-WEAK_MODE = False
+    logger.warning(
+        f"Local model not found at {LOCAL_MODEL_DIR}. "
+        f"Falling back to HuggingFace model: {HF_MODEL_NAME}"
+    )
+    return HF_MODEL_NAME
 
-# -----------------------------
-# Конфигурация обучения
-# -----------------------------
+MODEL_NAME = resolve_model_path()
+
+LORA_ADAPTER_DIR = "/content/drive/MyDrive/Qwen2-0.5B-SFT-MultiDomain"
+
+DATASET_DIR = os.path.join(BASE_DIR, "data", "instructions_dataset")
+
+def validate_dataset_path():
+    if not os.path.exists(DATASET_DIR):
+        logger.error(f"Dataset directory not found: {DATASET_DIR}")
+        raise FileNotFoundError(
+            f"Dataset directory does not exist: {DATASET_DIR}. "
+            f"Expected a dataset saved via dataset.save_to_disk()."
+        )
+    return DATASET_DIR
+
+DATASET_PATH = validate_dataset_path()
+
+WEAK_MODE = True
+
 TRAINING_CONFIG = {
     "max_length": 1024,
     "per_device_train_batch_size": 1,
@@ -38,9 +49,6 @@ TRAINING_CONFIG = {
     "dataset_text_field": "text",
 }
 
-# -----------------------------
-# Конфигурация LoRA
-# -----------------------------
 LORA_CONFIG = {
     "r": 8,
     "alpha": 16,

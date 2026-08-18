@@ -1,7 +1,7 @@
 from src.utils.logging import setup_logging
 from src.utils.profiling import cpu_profile
 from src.utils.model_loader import load_baseline_model, load_finetuned_model
-from src.training.config import MODEL_NAME, OUTPUT_DIR, WEAK_MODE
+from src.training.config import MODEL_NAME, LORA_ADAPTER_DIR, WEAK_MODE
 
 
 def main():
@@ -17,7 +17,7 @@ def main():
 
     with cpu_profile("load_finetuned"):
         finetuned_model, finetuned_tokenizer = load_finetuned_model(
-            MODEL_NAME, OUTPUT_DIR
+            MODEL_NAME, LORA_ADAPTER_DIR
         )
 
     if baseline_model is None or baseline_tokenizer is None:

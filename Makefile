@@ -12,3 +12,11 @@ hydra:
 
 test:
     pytest -q
+
+.PHONY: clean-logs
+
+clean-logs:
+    @echo "Cleaning logs..."
+    @echo "" > logs/app.log
+    @echo "" > logs/profile_cpu.txt
+    @echo "Logs cleaned."

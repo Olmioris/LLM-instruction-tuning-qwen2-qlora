@@ -2,32 +2,31 @@ from src.utils.logging import setup_logging
 from src.utils.model_loader import load_baseline_model, load_finetuned_model
 from src.utils.profiling import cpu_profile
 from src.evaluation.hellaswag_runner import run_hellaswag
+from src.training.config import MODEL_NAME, LORA_ADAPTER_DIR, WEAK_MODE
 
-MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"
-OUTPUT_DIR = "/content/drive/MyDrive/Qwen2-0.5B-SFT-MultiDomain"
 
 def main():
     logger = setup_logging()
     logger.info("Starting main pipeline")
 
-    # Load baseline
+    if WEAK_MODE:
+        logger.warning("Weak laptop mode: skipping main pipeline")
+        return
+
     with cpu_profile("load_baseline"):
         baseline_model, baseline_tokenizer = load_baseline_model(MODEL_NAME)
 
-    # Load finetuned
     with cpu_profile("load_finetuned"):
         finetuned_model, finetuned_tokenizer = load_finetuned_model(
-            MODEL_NAME, OUTPUT_DIR
+            MODEL_NAME, LORA_ADAPTER_DIR
         )
 
-    # Evaluate
     baseline_score = run_hellaswag(MODEL_NAME)
-    finetuned_score = run_hellaswag(MODEL_NAME, OUTPUT_DIR)
+    finetuned_score = run_hellaswag(MODEL_NAME, LORA_ADAPTER_DIR)
 
     logger.info(f"Baseline Hellaswag acc_norm: {baseline_score:.4f}")
     logger.info(f"Finetuned Hellaswag acc_norm: {finetuned_score:.4f}")
 
-    # Generation demo
     prompt = "Explain the difference between supervised and reinforcement learning."
 
     baseline_out = baseline_model.generate(
@@ -44,6 +43,7 @@ def main():
 
     logger.info("Finetuned generation:")
     logger.info(finetuned_tokenizer.decode(finetuned_out[0], skip_special_tokens=True))
+
 
 if __name__ == "__main__":
     main()

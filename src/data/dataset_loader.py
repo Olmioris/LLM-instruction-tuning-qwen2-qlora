@@ -4,14 +4,11 @@ import random
 import numpy as np
 import torch
 from datasets import load_from_disk
-from src.training.config import WEAK_MODE
+from src.training.config import WEAK_MODE, DATASET_PATH
 
 logger = logging.getLogger("app")
 
 
-# -----------------------------
-# Установка seed
-# -----------------------------
 def set_seed(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
@@ -19,14 +16,19 @@ def set_seed(seed: int = 42):
     logger.debug(f"Seed set to {seed}")
 
 
-# -----------------------------
-# Загрузка датасета с диска
-# -----------------------------
-def load_raw_dataset(path: str):
-    """
-    Загружает уже отформатированный датасет,
-    который содержит только поле 'text'.
-    """
+def validate_dataset_structure(dataset):
+    required = "text"
+    if required not in dataset.column_names:
+        logger.error(
+            f"Dataset missing required field '{required}'. Columns: {dataset.column_names}"
+        )
+        raise ValueError(
+            f"Dataset must contain field '{required}', but columns are: {dataset.column_names}"
+        )
+    logger.debug("Dataset structure validated: field 'text' present")
+
+
+def load_raw_dataset(path: str = DATASET_PATH):
     if WEAK_MODE:
         logger.warning("Weak laptop mode: skipping dataset loading")
         return None
@@ -34,38 +36,29 @@ def load_raw_dataset(path: str):
     logger.info(f"Loading dataset from: {path}")
 
     if not os.path.exists(path):
-        raise FileNotFoundError(f"Dataset path does not exist: {path}")
+        logger.error(f"Dataset path does not exist: {path}")
+        raise FileNotFoundError(
+            f"Dataset directory does not exist: {path}. Expected dataset.save_to_disk()."
+        )
 
     try:
         dataset = load_from_disk(path)
     except Exception as e:
-        logger.error(f"Failed to load dataset from disk: {e}")
+        logger.error(f"Failed to load dataset: {e}")
         raise RuntimeError(f"Dataset loading failed: {e}")
 
-    # Проверка структуры
-    if "text" not in dataset.column_names:
-        logger.warning(
-            f"Dataset loaded but 'text' field not found. Columns: {dataset.column_names}"
-        )
+    validate_dataset_structure(dataset)
 
     logger.info("Dataset loaded successfully")
     return dataset
 
 
-# -----------------------------
-# Подготовка датасета
-# -----------------------------
-def prepare_dataset(path: str, seed: int = 42, test_size: float = 0.02):
-    """
-    Загружает датасет и делает train/test split.
-    Форматирования не требуется — оно было сделано заранее в Colab.
-    """
+def prepare_dataset(path: str = DATASET_PATH, seed: int = 42, test_size: float = 0.02):
     if WEAK_MODE:
         logger.warning("Weak laptop mode: skipping dataset preparation")
         return None
 
     logger.info("Preparing dataset...")
-
     set_seed(seed)
 
     dataset = load_raw_dataset(path)
@@ -77,10 +70,8 @@ def prepare_dataset(path: str, seed: int = 42, test_size: float = 0.02):
         raise RuntimeError(f"Dataset split failed: {e}")
 
     if "train" not in dataset or "test" not in dataset:
-        raise RuntimeError("Dataset split did not produce 'train' and 'test' subsets")
+        logger.error("Dataset split missing 'train' or 'test'")
+        raise RuntimeError("Dataset split failed: missing required subsets")
 
-    logger.info(
-        f"Dataset prepared: train={len(dataset['train'])}, test={len(dataset['test'])}"
-    )
-
+    logger.info(f"Dataset prepared: train={len(dataset['train'])}, test={len(dataset['test'])}")
     return dataset
