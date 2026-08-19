@@ -41,16 +41,18 @@ class SFTTrainingConfig:
     dataset_text_field: str = TRAINING_CONFIG["dataset_text_field"]
 
 
-def load_4bit_model(model_name: str = MODEL_NAME):
+# ---------------------------------------------------------
+# 🔧 Colab T4 не поддерживает load_in_4bit → используем fp16
+# ---------------------------------------------------------
+def load_fp16_model(model_name: str = MODEL_NAME):
     if WEAK_MODE:
-        logger.warning("Weak laptop mode: skipping 4-bit model loading")
+        logger.warning("Weak laptop mode: skipping model loading")
         return None
 
-    logger.info(f"Loading 4-bit model: {model_name}")
+    logger.info(f"Loading fp16 model: {model_name}")
 
     return AutoModelForCausalLM.from_pretrained(
         model_name,
-        load_in_4bit=True,
         torch_dtype=torch.float16,
         device_map="auto",
     )
@@ -102,7 +104,7 @@ def create_trainer(model, tokenizer, dataset, cfg: SFTTrainingConfig):
         warmup_steps=cfg.warmup_steps,
         logging_steps=cfg.logging_steps,
         save_steps=cfg.save_steps,
-        fp16=False,
+        fp16=True,          # 🔧 Colab T4 поддерживает fp16
         bf16=False,
         report_to="none",
         num_train_epochs=cfg.num_train_epochs,
@@ -142,7 +144,9 @@ def run_sft_training(
 
     tokenizer = load_tokenizer(cfg.model_name)
     dataset = prepare_dataset(Path(cfg.dataset_path))
-    model = load_4bit_model(cfg.model_name)
+
+    # 🔧 заменили load_4bit_model → load_fp16_model
+    model = load_fp16_model(cfg.model_name)
     model = apply_lora(model)
 
     trainer = create_trainer(model, tokenizer, dataset, cfg)

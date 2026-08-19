@@ -5,7 +5,7 @@ from src.utils.logging import setup_logging
 from src.utils.profiling import cpu_profile
 from src.data.dataset_loader import prepare_dataset
 from src.training.trainer import (
-    load_4bit_model,
+    load_fp16_model,     # 🔧 заменили load_4bit_model
     apply_lora,
     create_trainer,
     train_model,
@@ -30,8 +30,8 @@ def main():
     with cpu_profile("load_dataset"):
         dataset = prepare_dataset(Path(cfg.dataset_path))
 
-    with cpu_profile("load_4bit_model"):
-        model = load_4bit_model(cfg.model_name)
+    with cpu_profile("load_fp16_model"):   # 🔧 заменили блок
+        model = load_fp16_model(cfg.model_name)
 
     with cpu_profile("apply_lora"):
         model = apply_lora(model)
