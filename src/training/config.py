@@ -1,40 +1,9 @@
-import os
-import logging
+from pathlib import Path
 
-logger = logging.getLogger("app")
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-
-LOCAL_MODEL_DIR = "/content/drive/MyDrive/local-qwen"
-HF_MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"
-
-def resolve_model_path():
-    if os.path.exists(LOCAL_MODEL_DIR):
-        logger.info(f"Using local model: {LOCAL_MODEL_DIR}")
-        return LOCAL_MODEL_DIR
-
-    logger.warning(
-        f"Local model not found at {LOCAL_MODEL_DIR}. "
-        f"Falling back to HuggingFace model: {HF_MODEL_NAME}"
-    )
-    return HF_MODEL_NAME
-
-MODEL_NAME = resolve_model_path()
-
-LORA_ADAPTER_DIR = "/content/drive/MyDrive/Qwen2-0.5B-SFT-MultiDomain"
-
-DATASET_DIR = os.path.join(BASE_DIR, "data", "instructions_dataset")
-
-def validate_dataset_path():
-    if not os.path.exists(DATASET_DIR):
-        logger.error(f"Dataset directory not found: {DATASET_DIR}")
-        raise FileNotFoundError(
-            f"Dataset directory does not exist: {DATASET_DIR}. "
-            f"Expected a dataset saved via dataset.save_to_disk()."
-        )
-    return DATASET_DIR
-
-DATASET_PATH = validate_dataset_path()
+MODEL_NAME = "Qwen/Qwen2-0.5B-Instruct"
+DATASET_PATH = Path("data/instructions_dataset")
+OUTPUT_DIR = Path("models/sft-output")
+LORA_ADAPTER_DIR = Path("models/lora-adapter")
 
 WEAK_MODE = True
 
