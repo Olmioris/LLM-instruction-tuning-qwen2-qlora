@@ -6,10 +6,9 @@ from src.training.config import MODEL_NAME, LORA_ADAPTER_DIR, WEAK_MODE
 
 def main():
     logger = setup_logging()
-    logger.info("Starting evaluation pipeline")
 
     if WEAK_MODE:
-        logger.warning("Weak laptop mode: skipping Hellaswag evaluation")
+        logger.warning("Weak mode: skipping evaluation")
         return
 
     with cpu_profile("eval_baseline"):
@@ -18,8 +17,8 @@ def main():
     with cpu_profile("eval_finetuned"):
         finetuned_score = run_hellaswag(MODEL_NAME, LORA_ADAPTER_DIR)
 
-    logger.info(f"Baseline Hellaswag acc_norm: {baseline_score:.4f}")
-    logger.info(f"Finetuned Hellaswag acc_norm: {finetuned_score:.4f}")
+    logger.info(f"Baseline acc_norm: {baseline_score}")
+    logger.info(f"Finetuned acc_norm: {finetuned_score}")
 
 
 if __name__ == "__main__":
