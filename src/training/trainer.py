@@ -1,11 +1,16 @@
 import logging
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Optional
 
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments
+from transformers import (
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    TrainingArguments,
+    Trainer,
+)
 from peft import LoraConfig, get_peft_model
-from trl import SFTTrainer
 
 from src.training.config import (
     MODEL_NAME,
@@ -103,15 +108,12 @@ def create_trainer(model, tokenizer, dataset, cfg: SFTTrainingConfig):
         num_train_epochs=cfg.num_train_epochs,
     )
 
-    logger.info("Initializing SFTTrainer")
+    logger.info("Initializing Trainer")
 
-    return SFTTrainer(
+    return Trainer(
         model=model,
-        tokenizer=tokenizer,
-        train_dataset=dataset["train"],
-        dataset_text_field=cfg.dataset_text_field,
-        max_seq_length=cfg.max_seq_length,
         args=args,
+        train_dataset=dataset["train"],
     )
 
 
