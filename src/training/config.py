@@ -5,7 +5,7 @@ DATASET_PATH = Path("data/instructions_dataset")
 OUTPUT_DIR = Path("models/sft-output")
 LORA_ADAPTER_DIR = Path("models/lora-adapter")
 
-WEAK_MODE = True
+WEAK_MODE = True  # ноут / локально → True, в Colab для тестов будем патчить на False
 
 TRAINING_CONFIG = {
     "max_length": 1024,
